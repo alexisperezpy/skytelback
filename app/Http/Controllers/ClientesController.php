@@ -20,17 +20,34 @@ class ClientesController extends Controller
     
     public function store(StoreClientesRequest $request)
     {
-        $request->validate([
+        $rules=[
             'nombre' => 'required|string|min:1|max:25',
             'apellido' => 'required|string|min:1|max:25',
             'telefono' => 'required|string|min:5|max:10',
-            'correo' => 'required|email|max:50|unique:clientes',
-        ]);
-        
-        $cliente = Clientes::create($request->all());
-        return response()->json(['message' => 'Registro exitoso'], 201);
-    }
+            'correo' => 'required|email|max:50|unique:clientes,correo',
+        ];
 
+        if($request->correo == 'john@smith.com'){
+            return response()->json(
+                [
+                    'message' => 'Error!, El correo ingresado es: john@smith.com',
+                    'data' => $request->all()
+                ],
+                400
+            ); 
+        }else{
+            $this->validate($request, $rules);
+            $cliente = Clientes::create($request->all());
+           
+            return response()->json(
+                [
+                    'message' => 'Registro exitoso',
+                    'data' => $cliente
+                ],
+                201
+            ); 
+        }
+    }
     
     public function show(Clientes $clientes)
     {
